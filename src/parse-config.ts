@@ -36,6 +36,26 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+// Match Python's `bool(...)` over yaml_subset output: YAML 1.1 strings (`yes/no/on/off`)
+// resolve to bool, then Python truthy widens (non-empty string → True, 0 → False).
+// The `yaml` npm package follows YAML 1.2 and leaves `yes`/`no` as strings, so the
+// TS port would diverge from the Python original on `drop: yes` without this helper.
+function coerceYaml11Bool(value: unknown): boolean {
+  if (typeof value === "boolean") return value;
+  if (value === null || value === undefined) return false;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const low = value.toLowerCase();
+    if (low === "" || low === "false" || low === "no" || low === "off" || low === "null" || low === "~") {
+      return false;
+    }
+    return true;
+  }
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object") return Object.keys(value as object).length > 0;
+  return false;
+}
+
 function pythonRepr(value: unknown): string {
   if (value === null || value === undefined) return "None";
   if (typeof value === "string") return `'${value.replace(/'/g, "\\'")}'`;
@@ -91,7 +111,7 @@ function validate(parsed: unknown): ParseConfigOutput {
     return { context_dir: contextDir, categories: defaultCanonicalCategories(contextDir) };
   }
   if (!isPlainObject(parsed)) {
-    errors.push(new ConfigError("top-level document must be a mapping"));
+    errors.push(new ConfigError("top-level document must be a mapping", 1));
     throw new ConfigErrorList(errors);
   }
 
@@ -150,8 +170,8 @@ function validate(parsed: unknown): ParseConfigOutput {
       }
     }
 
-    const drop = body["drop"] === true;
-    const customFlag = body["custom"] === true;
+    const drop = coerceYaml11Bool(body["drop"]);
+    const customFlag = coerceYaml11Bool(body["custom"]);
     const path = body["path"];
     const l3 = body["l3"];
     const description = body["description"];

@@ -34,8 +34,13 @@ jobs:
 
       - name: Verify dist is up to date
         run: |
-          if ! git diff --quiet -- dist; then
+          untracked="$(git ls-files --others --exclude-standard -- dist)"
+          if [ -n "$untracked" ] || ! git diff --quiet -- dist; then
             echo "::error::dist/ is out of sync with src/. Run 'pnpm build' locally and commit the result."
+            if [ -n "$untracked" ]; then
+              echo "Untracked files under dist/:"
+              echo "$untracked"
+            fi
             git diff -- dist
             exit 1
           fi

@@ -42,6 +42,19 @@ var ConfigErrorList = class extends Error {
 function isPlainObject(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+function coerceYaml11Bool(value) {
+	if (typeof value === "boolean") return value;
+	if (value === null || value === void 0) return false;
+	if (typeof value === "number") return value !== 0;
+	if (typeof value === "string") {
+		const low = value.toLowerCase();
+		if (low === "" || low === "false" || low === "no" || low === "off" || low === "null" || low === "~") return false;
+		return true;
+	}
+	if (Array.isArray(value)) return value.length > 0;
+	if (typeof value === "object") return Object.keys(value).length > 0;
+	return false;
+}
 function pythonRepr(value) {
 	if (value === null || value === void 0) return "None";
 	if (typeof value === "string") return `'${value.replace(/'/g, "\\'")}'`;
@@ -83,7 +96,7 @@ function validate(parsed) {
 		categories: defaultCanonicalCategories(contextDir)
 	};
 	if (!isPlainObject(parsed)) {
-		errors.push(new ConfigError("top-level document must be a mapping"));
+		errors.push(new ConfigError("top-level document must be a mapping", 1));
 		throw new ConfigErrorList(errors);
 	}
 	for (const key of Object.keys(parsed)) if (!ALLOWED_TOP_LEVEL.has(key)) errors.push(new ConfigError(`unknown top-level key: '${key}'`));
@@ -113,8 +126,8 @@ function validate(parsed) {
 		}
 		const body = rawBody === null || rawBody === void 0 ? {} : rawBody;
 		for (const k of Object.keys(body)) if (!ALLOWED_CATEGORY_FIELDS.has(k)) errors.push(new ConfigError(`category '${name}': unknown field '${k}'`));
-		const drop = body["drop"] === true;
-		const customFlag = body["custom"] === true;
+		const drop = coerceYaml11Bool(body["drop"]);
+		const customFlag = coerceYaml11Bool(body["custom"]);
 		const path = body["path"];
 		const l3 = body["l3"];
 		const description = body["description"];
