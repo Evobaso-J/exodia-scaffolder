@@ -5,7 +5,7 @@
   "description": "AGENTS.md scaffolder for context engineering. Helper CLIs invoked by the /exodia skill protocol.",
   "type": "module",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=24.11.0"
   },
   "packageManager": "pnpm@10.30.2",
   "scripts": {
@@ -24,7 +24,7 @@
     "lint-staged": "15.3.0",
     "tsdown": "0.22.0",
     "typescript": "5.7.3",
-    "vitest": "2.1.8"
+    "vitest": "2.1.9"
   },
   "lint-staged": {
     "src/**/*.ts": [
