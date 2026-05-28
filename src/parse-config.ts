@@ -36,21 +36,16 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-// Match Python's `bool(...)` over yaml_subset output: YAML 1.1 strings (`yes/no/on/off`)
-// resolve to bool, then Python truthy widens (non-empty string → True, 0 → False).
-// The `yaml` npm package follows YAML 1.2 and leaves `yes`/`no` as strings, so the
-// TS port would diverge from the Python original on `drop: yes` without this helper.
-function coerceYaml11Bool(value: unknown): boolean {
+// Python `bool(v)` semantics over yaml_subset's post-parse output. YAML 1.1 boolean
+// tokens (`yes/no/on/off`) are resolved by the parser (we pass `schema: 'yaml-1.1'`
+// to parseYaml), so by this point booleans are already booleans. String parity then
+// only requires Python's "non-empty string is truthy" rule: quoted `"no"` stays a
+// string and Python bool("no") = True, matching this helper.
+function pythonBool(value: unknown): boolean {
   if (typeof value === "boolean") return value;
   if (value === null || value === undefined) return false;
   if (typeof value === "number") return value !== 0;
-  if (typeof value === "string") {
-    const low = value.toLowerCase();
-    if (low === "" || low === "false" || low === "no" || low === "off" || low === "null" || low === "~") {
-      return false;
-    }
-    return true;
-  }
+  if (typeof value === "string") return value.length > 0;
   if (Array.isArray(value)) return value.length > 0;
   if (typeof value === "object") return Object.keys(value as object).length > 0;
   return false;
@@ -170,8 +165,8 @@ function validate(parsed: unknown): ParseConfigOutput {
       }
     }
 
-    const drop = coerceYaml11Bool(body["drop"]);
-    const customFlag = coerceYaml11Bool(body["custom"]);
+    const drop = pythonBool(body["drop"]);
+    const customFlag = pythonBool(body["custom"]);
     const path = body["path"];
     const l3 = body["l3"];
     const description = body["description"];
@@ -345,7 +340,7 @@ function emitError(prefix: string, e: ConfigError): void {
 
 export function parseConfigFile(path: string): ParseConfigOutput {
   const text = readFileSync(path, "utf-8");
-  return validate(parseYaml(text));
+  return validate(parseYaml(text, { schema: "yaml-1.1" }));
 }
 
 export function main(argv: string[]): number {
@@ -370,7 +365,7 @@ export function main(argv: string[]): number {
   const text = readFileSync(pathArg, "utf-8");
   let parsed: unknown;
   try {
-    parsed = parseYaml(text);
+    parsed = parseYaml(text, { schema: "yaml-1.1" });
   } catch (e) {
     if (e instanceof YAMLParseError) {
       const line = e.linePos?.[0]?.line;

@@ -42,15 +42,11 @@ var ConfigErrorList = class extends Error {
 function isPlainObject(value) {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-function coerceYaml11Bool(value) {
+function pythonBool(value) {
 	if (typeof value === "boolean") return value;
 	if (value === null || value === void 0) return false;
 	if (typeof value === "number") return value !== 0;
-	if (typeof value === "string") {
-		const low = value.toLowerCase();
-		if (low === "" || low === "false" || low === "no" || low === "off" || low === "null" || low === "~") return false;
-		return true;
-	}
+	if (typeof value === "string") return value.length > 0;
 	if (Array.isArray(value)) return value.length > 0;
 	if (typeof value === "object") return Object.keys(value).length > 0;
 	return false;
@@ -126,8 +122,8 @@ function validate(parsed) {
 		}
 		const body = rawBody === null || rawBody === void 0 ? {} : rawBody;
 		for (const k of Object.keys(body)) if (!ALLOWED_CATEGORY_FIELDS.has(k)) errors.push(new ConfigError(`category '${name}': unknown field '${k}'`));
-		const drop = coerceYaml11Bool(body["drop"]);
-		const customFlag = coerceYaml11Bool(body["custom"]);
+		const drop = pythonBool(body["drop"]);
+		const customFlag = pythonBool(body["custom"]);
 		const path = body["path"];
 		const l3 = body["l3"];
 		const description = body["description"];
@@ -254,7 +250,7 @@ function emitError(prefix, e) {
 	process.stderr.write(`${linePrefix}${e.message}\n`);
 }
 function parseConfigFile(path) {
-	return validate((0, import_dist.parse)(readFileSync(path, "utf-8")));
+	return validate((0, import_dist.parse)(readFileSync(path, "utf-8"), { schema: "yaml-1.1" }));
 }
 function main(argv) {
 	if (argv.length !== 1) {
@@ -276,7 +272,7 @@ function main(argv) {
 	const text = readFileSync(pathArg, "utf-8");
 	let parsed;
 	try {
-		parsed = (0, import_dist.parse)(text);
+		parsed = (0, import_dist.parse)(text, { schema: "yaml-1.1" });
 	} catch (e) {
 		if (e instanceof import_dist.YAMLParseError) {
 			const line = e.linePos?.[0]?.line;
