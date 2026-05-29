@@ -1,7 +1,7 @@
 # Canonical ledger registry: single source of truth for every L3 ledger
 # the scaffolder ships. Drives:
 #
-#   - scripts/resolve-layout.mjs: filename -> (host, schema) lookup
+#   - dist/resolve-layout.mjs: filename -> (host, schema) lookup
 #   - rules/self-update.md: emitted "When to update" table
 #   - SKILL.md Step 8: {{path:<key>}} resolution
 #   - SKILL.md Step 9: per-ledger seed-scan source / skeleton-source
