@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/Evobaso-J/exodia-context-scaffolder/compare/v2.2.0...v3.0.0) (2026-05-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* end users must now have node >= 24 (current LTS) on PATH instead of python3 + bash. The skill no longer ships Python or Bash sources; re-clone or pull the skill to pick up the dist/*.mjs entrypoints.
+
+### Features
+
+* cut /exodia skill over to TypeScript helpers ([#89](https://github.com/Evobaso-J/exodia-context-scaffolder/issues/89)) ([1002c9e](https://github.com/Evobaso-J/exodia-context-scaffolder/commit/1002c9e3301be26c9e2e82eff90f32223f10c524))
+
 ## [2.2.0](https://github.com/Evobaso-J/exodia-context-scaffolder/compare/v2.1.0...v2.2.0) (2026-05-17)
 
 
