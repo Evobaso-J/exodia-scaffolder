@@ -43,7 +43,7 @@ Any other name in `categories` requires `custom: true` or it is rejected at pars
 
 ## Validation rules
 
-`dist/parse-config.mjs` rejects (with line-numbered errors on stderr, exit 65):
+`src/parse-config.ts` rejects (with line-numbered errors on stderr, exit 65):
 
 1. Path violates the shape constraints above (allowed character set, no `..`, no leading or trailing `/`).
 2. Two categories share `path`.
