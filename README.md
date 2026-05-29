@@ -122,8 +122,6 @@ LATEST=$(git ls-remote --tags --sort=-v:refname https://github.com/Evobaso-J/exo
 git clone --depth 1 --branch "$LATEST" https://github.com/Evobaso-J/exodia-context-scaffolder ~/.claude/skills/exodia
 ```
 
-Pinning to the latest release tag (vs tracking `main`) guarantees a consistent `(src/, dist/)` pair: `main` can be mid-rebuild between a source change and the regenerated bundle, in which case the helpers and the protocol disagree.
-
 Restart Claude Code (or open a new session). Run `/exodia` in any repo. The directory name (`exodia`) must match the skill name in `SKILL.md` frontmatter; do not rename it.
 
 **Runtime requirement:** Node.js (current LTS). The skill's CLI helpers are authored in `src/` (TypeScript) and ship pre-built to `dist/`, so no `npm install` is needed to run the skill.
