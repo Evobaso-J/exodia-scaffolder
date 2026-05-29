@@ -14,12 +14,8 @@ export default defineConfig({
   treeshake: true,
   clean: true,
   dts: false,
-  // Helpers run from the installed skill dir with no `pnpm install` step, so
-  // every runtime dep must be inlined. tsdown (a library bundler) externalizes
-  // package.json `dependencies` by default; bundle all of them instead so the
-  // artifact is self-contained. Bundling everything (not a named list) means a
-  // future dep can never silently reintroduce an external import. `node:`
-  // builtins stay external automatically.
+  // Skill runs helpers with no `pnpm install`, so bundle every dep. Regex
+  // (not a named allowlist) blocks future deps from silently re-externalizing.
   deps: {
     alwaysBundle: [/./],
   },

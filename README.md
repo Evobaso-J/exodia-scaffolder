@@ -115,13 +115,16 @@ Known pitfalls, fragile spots, recurring bug shapes. `playbooks.jsonl` is append
 
 ## ⚡ Install
 
-`exodia` is a single Claude Code skill. Clone it into your personal skills dir:
+`exodia` is a single Claude Code skill. Clone it at the [latest release tag](https://github.com/Evobaso-J/exodia-context-scaffolder/releases/latest) into your personal skills dir:
 
 ```bash
-git clone https://github.com/Evobaso-J/exodia-context-scaffolder ~/.claude/skills/exodia
+LATEST=$(git ls-remote --tags --sort=-v:refname https://github.com/Evobaso-J/exodia-context-scaffolder 'v*' | head -1 | sed 's@.*refs/tags/@@')
+git clone --depth 1 --branch "$LATEST" https://github.com/Evobaso-J/exodia-context-scaffolder ~/.claude/skills/exodia
 ```
 
 Restart Claude Code (or open a new session). Run `/exodia` in any repo. The directory name (`exodia`) must match the skill name in `SKILL.md` frontmatter; do not rename it.
+
+**Runtime requirement:** Node.js (current LTS). The skill's CLI helpers are authored in `src/` (TypeScript) and ship pre-built to `dist/`, so no `npm install` is needed to run the skill.
 
 ## 🎯 Usage
 
