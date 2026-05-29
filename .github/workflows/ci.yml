@@ -1,0 +1,59 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-check-dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 10.30.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Verify dist is up to date
+        run: |
+          untracked="$(git ls-files --others --exclude-standard -- dist)"
+          if [ -n "$untracked" ] || ! git diff --quiet -- dist; then
+            echo "::error::dist/ is out of sync with src/. Run 'pnpm build' locally and commit the result."
+            if [ -n "$untracked" ]; then
+              echo "Untracked files under dist/:"
+              echo "$untracked"
+            fi
+            git diff -- dist
+            exit 1
+          fi
+
+      - name: Smoke test (artifacts must run with no node_modules)
+        run: |
+          tmp="$(mktemp -d)"
+          cp -r dist "$tmp/dist"
+          printf 'context_dir: ctx\ncategories:\n  architecture: {}\n' > "$tmp/cfg.yaml"
+          # Run from a dir with no node_modules: proves runtime deps are bundled,
+          # not externalized. The skill invokes these the same way, uninstalled.
+          node "$tmp/dist/parse-config.mjs" "$tmp/cfg.yaml" > /dev/null
+          echo "parse-config.mjs runs standalone"
+
+      - name: Test
+        run: pnpm test
