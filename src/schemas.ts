@@ -1,3 +1,22 @@
+import { realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+/**
+ * Symlink-tolerant entrypoint check. When the skill dir is a symlink (e.g.
+ * brain-sync links personal skills into ~/.claude/skills), Node resolves
+ * import.meta.url to the script's realpath while process.argv[1] keeps the
+ * symlink path, so a strict href comparison fails and main() silently never
+ * runs. Canonicalize both sides with realpathSync before comparing.
+ */
+export function isEntrypoint(importMetaUrl: string, entry: string | undefined): boolean {
+  if (!entry) return false;
+  try {
+    return realpathSync(fileURLToPath(importMetaUrl)) === realpathSync(entry);
+  } catch {
+    return false;
+  }
+}
+
 export const CANONICAL_CATEGORIES = [
   "architecture",
   "design-patterns",

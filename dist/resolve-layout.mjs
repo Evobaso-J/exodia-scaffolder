@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { t as require_dist } from "./dist-CygAr3jS.mjs";
+import { o as isEntrypoint } from "./schemas-o-IkXWxR.mjs";
 import { readFileSync, readSync, readdirSync, statSync } from "node:fs";
-import { pathToFileURL } from "node:url";
 import { join, resolve } from "node:path";
 //#region src/resolve-layout.ts
 var import_dist = require_dist();
@@ -184,7 +184,6 @@ function main(argv) {
 	process.stdout.write(`${JSON.stringify(resolved, null, 2)}\n`);
 	return 0;
 }
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) process.exit(main(process.argv.slice(2)));
+if (isEntrypoint(import.meta.url, process.argv[1])) process.exit(main(process.argv.slice(2)));
 //#endregion
 export { main, resolveLayout };

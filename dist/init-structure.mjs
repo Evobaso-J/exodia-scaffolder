@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+import { o as isEntrypoint } from "./schemas-o-IkXWxR.mjs";
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { basename, dirname, join, resolve } from "node:path";
 //#region src/init-structure.ts
 const CONTEXT_DIR_RE = /^[a-z._-][a-z0-9._-]*$/;
@@ -142,7 +143,6 @@ function main(argv) {
 	process.stdout.write(`done. ${contextDir}/ initialized at ${join(target, contextDir)}\n`);
 	return 0;
 }
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) process.exit(main(process.argv.slice(2)));
+if (isEntrypoint(import.meta.url, process.argv[1])) process.exit(main(process.argv.slice(2)));
 //#endregion
 export { main };

@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -98,5 +98,19 @@ describe("init-structure", () => {
     expect(() => {
       execFileSync("node", [CLI, tmp, "..", "architecture"], { stdio: "pipe" });
     }).toThrow();
+  });
+
+  // Regression: brain-sync symlinks personal skills into ~/.claude/skills, so
+  // the helper is invoked via a symlink path. argv[1] stays the symlink while
+  // import.meta.url is the realpath; a strict href guard silently no-ops here.
+  it("runs main() when invoked through a symlinked path", () => {
+    const link = join(tmp, "init-structure-link.mjs");
+    symlinkSync(CLI, link);
+
+    execFileSync("node", [link, tmp, "context", "architecture"]);
+
+    const files = walk(tmp);
+    expect(files).toContain("context/architecture/ARCHITECTURE.md");
+    expect(files).toContain("context/architecture/decisions.jsonl");
   });
 });

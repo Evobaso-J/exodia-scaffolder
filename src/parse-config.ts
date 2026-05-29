@@ -1,11 +1,11 @@
 import { readFileSync, statSync } from "node:fs";
-import { pathToFileURL } from "node:url";
 import { parse as parseYaml, YAMLParseError } from "yaml";
 
 import {
   CANONICAL_CATEGORIES,
   CATEGORY_NAME_RE,
   DESCRIPTION_MAX_LEN,
+  isEntrypoint,
   L3_FILENAME_RE,
   PATH_RE,
   RECOGNIZED_CATEGORIES,
@@ -395,7 +395,6 @@ export function main(argv: string[]): number {
   return 0;
 }
 
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) {
+if (isEntrypoint(import.meta.url, process.argv[1])) {
   process.exit(main(process.argv.slice(2)));
 }

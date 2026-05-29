@@ -1,6 +1,8 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve as resolvePath } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
+
+import { isEntrypoint } from "./schemas.js";
 
 const CONTEXT_DIR_RE = /^[a-z._-][a-z0-9._-]*$/;
 const CATEGORY_RE = /^[a-z][a-z0-9_-]*$/;
@@ -181,7 +183,6 @@ export function main(argv: string[]): number {
   return 0;
 }
 
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) {
+if (isEntrypoint(import.meta.url, process.argv[1])) {
   process.exit(main(process.argv.slice(2)));
 }

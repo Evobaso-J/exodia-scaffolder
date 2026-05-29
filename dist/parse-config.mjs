@@ -1,22 +1,9 @@
 #!/usr/bin/env node
 import { t as require_dist } from "./dist-CygAr3jS.mjs";
+import { a as RECOGNIZED_CATEGORIES, i as PATH_RE, n as CATEGORY_NAME_RE, o as isEntrypoint, r as L3_FILENAME_RE, t as CANONICAL_CATEGORIES } from "./schemas-o-IkXWxR.mjs";
 import { readFileSync, statSync } from "node:fs";
-import { pathToFileURL } from "node:url";
-//#region src/schemas.ts
-var import_dist = require_dist();
-const CANONICAL_CATEGORIES = [
-	"architecture",
-	"design-patterns",
-	"glossary",
-	"operations",
-	"debugging"
-];
-const RECOGNIZED_CATEGORIES = new Set(CANONICAL_CATEGORIES);
-const PATH_RE = /^[a-z._-][a-z0-9._/-]*$/;
-const CATEGORY_NAME_RE = /^[a-z][a-z0-9_-]*$/;
-const L3_FILENAME_RE = /^[a-z][a-z0-9_-]*(?:\/[a-z][a-z0-9_-]*)*\.(yaml|jsonl|md)$/;
-//#endregion
 //#region src/parse-config.ts
+var import_dist = require_dist();
 const ALLOWED_TOP_LEVEL = new Set(["context_dir", "categories"]);
 const ALLOWED_CATEGORY_FIELDS = new Set([
 	"path",
@@ -299,7 +286,6 @@ function main(argv) {
 	process.stdout.write(`${JSON.stringify(resolved, null, 2)}\n`);
 	return 0;
 }
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) process.exit(main(process.argv.slice(2)));
+if (isEntrypoint(import.meta.url, process.argv[1])) process.exit(main(process.argv.slice(2)));
 //#endregion
 export { main, parseConfigFile };

@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync, readSync, statSync } from "node:fs";
 import { join, resolve as resolvePath } from "node:path";
-import { pathToFileURL } from "node:url";
 import { parse as parseYaml } from "yaml";
 
+import { isEntrypoint } from "./schemas.js";
 import type {
   L3Spec,
   LedgerCandidate,
@@ -218,7 +218,6 @@ export function main(argv: string[]): number {
   return 0;
 }
 
-const entry = process.argv[1];
-if (entry && import.meta.url === pathToFileURL(entry).href) {
+if (isEntrypoint(import.meta.url, process.argv[1])) {
   process.exit(main(process.argv.slice(2)));
 }
